@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống Kê Cầu Thủ Bóng Đá</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .win {
+            background-color: #4CAF50;
+        }
+        .lose {
+            background-color: #f44336;
+        }
+        .draw {
+            background-color: #2196F3;
+        }
+        .reset {
+            background-color: #FF9800;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>THỐNG KÊ</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Tên Cầu Thủ</th>
+            <th>Trận Thắng</th>
+            <th>Trận Thua</th>
+            <th>Trận Hòa</th>
+            <th>Tỷ Lệ Thắng</th>
+            <th>Tỷ Lệ Thua</th>
+            <th>Tỷ Lệ Hòa</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody id="playerStats">
+        <!-- Dữ liệu cầu thủ sẽ được thêm vào đây -->
+    </tbody>
+</table>
+
+<div class="footer">
+    <button class="reset" onclick="resetStats()">Reset</button>
+</div>
+
+<script>
+    const defaultPlayers = [
+        { name: "Cầu Thủ 1", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 2", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 3", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 4", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 5", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 6", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 7", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 8", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 9", wins: 0, losses: 0, draws: 0 },
+        { name: "Cầu Thủ 10", wins: 0, losses: 0, draws: 0 },
+    ];
+
+    let players = JSON.parse(localStorage.getItem('players')) || defaultPlayers;
+
+    function updateTable() {
+        const tbody = document.getElementById('playerStats');
+        tbody.innerHTML = '';
+        players.forEach((player, index) => {
+            const winRate = ((player.wins / (player.wins + player.losses + player.draws)) * 100 || 0).toFixed(2);
+            const lossRate = ((player.losses / (player.wins + player.losses + player.draws)) * 100 || 0).toFixed(2);
+            const drawRate = ((player.draws / (player.wins + player.losses + player.draws)) * 100 || 0).toFixed(2);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${player.name}</td>
+                <td>${player.wins}</td>
+                <td>${player.losses}</td>
+                <td>${player.draws}</td>
+                <td>${winRate}%</td>
+                <td>${lossRate}%</td>
+                <td>${drawRate}%</td>
+                <td>
+                    <button class="win" onclick="updateStats(${index}, 'win')">Thắng</button>
+                    <button class="lose" onclick="updateStats(${index}, 'lose')">Thua</button>
+                    <button class="draw" onclick="updateStats(${index}, 'draw')">Hòa</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function updateStats(index, result) {
+        if (result === 'win') {
+            players[index].wins++;
+        } else if (result === 'lose') {
+            players[index].losses++;
+        } else if (result === 'draw') {
+            players[index].draws++;
+        }
+        saveToLocalStorage();
+        updateTable();
+    }
+
+    function resetStats() {
+        players = defaultPlayers.map(player => ({ ...player })); // Reset về giá trị mặc định
+        saveToLocalStorage();
+        updateTable();
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('players', JSON.stringify(players));
+    }
+
+    // Khởi động bảng khi trang được tải
+    updateTable();
+</script>
+
+</body>
+</html>
