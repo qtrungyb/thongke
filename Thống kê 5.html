@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê FC Thập Cẩm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9; /* Màu nền sáng */
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333; /* Màu chữ tối */
+        }
+        p {
+            text-align: center; /* Căn giữa cho thông tin thời gian */
+            color: #555; /* Màu chữ nhẹ hơn */
+            margin: 10px 0; /* Khoảng cách trên và dưới */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ccc; /* Màu viền nhẹ */
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #4CAF50; /* Màu xanh lá cây cho tiêu đề */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2; /* Màu nền cho hàng chẵn */
+        }
+        button {
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .win {
+            background-color: #4CAF50; /* Màu xanh lá cây cho thắng */
+        }
+        .loss {
+            background-color: #f44336; /* Màu đỏ cho thua */
+        }
+        .draw {
+            background-color: #ffeb3b; /* Màu vàng cho hòa */
+            color: black; /* Chữ màu đen cho dễ đọc */
+        }
+        .reset {
+            background-color: #2196F3; /* Màu xanh dương cho reset */
+            color: white;
+        }
+        .add {
+            background-color: #ff9800; /* Màu cam cho thêm cầu thủ */
+            color: white;
+        }
+        .edit {
+            background-color: #673AB7; /* Màu tím cho sửa tên cầu thủ */
+            color: white;
+        }
+        .delete {
+            background-color: #f44336; /* Màu đỏ cho xóa cầu thủ */
+            color: white;
+        }
+        button:hover {
+            opacity: 0.9; /* Hiệu ứng mờ khi hover */
+        }
+        td:first-child {
+            text-align: left; /* Căn trái cho tên cầu thủ */
+        }
+        .win-rate {
+            background-color: #c8e6c9; /* Màu xanh lá cây nhạt cho tỷ lệ thắng */
+            color: black;
+        }
+        .loss-rate {
+            background-color: #ffcdd2; /* Màu đỏ nhạt cho tỷ lệ thua */
+            color: black;
+        }
+        .draw-rate {
+            background-color: #fff9c4; /* Màu vàng nhạt cho tỷ lệ hòa */
+            color: black;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Căn chỉnh các nút ở hai bên */
+            margin-top: 20px; /* Khoảng cách trên cho các nút */
+        }
+    </style>
+</head>
+<body>
+
+<h1>THỐNG KÊ</h1>
+<p>Từ ngày <input type="date" id="startDate"> đến ngày <input type="date" id="endDate"></p>
+
+<table id="playerTable">
+    <thead>
+        <tr>
+            <th>TÊN CẦU THỦ</th>
+            <th>THẮNG</th>
+            <th>THUA</th>
+            <th>HÒA</th>
+            <th>% THẮNG</th>
+            <th>% THUA</th>
+            <th>% HÒA</th>
+            <th>THAO TÁC</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dữ liệu cầu thủ sẽ được thêm vào đây -->
+    </tbody>
+</table>
+
+<div class="button-container">
+    <button class="add" onclick="addPlayer()">Thêm Cầu Thủ</button>
+    <button class="reset" onclick="resetData()">Reset</button>
+</div>
+
+<script>
+    const defaultPlayers = [
+        { name: "CT1", wins: 0, losses: 0, draws: 0 },
+        { name: "CT2", wins: 0, losses: 0, draws: 0 },
+        { name: "CT3", wins: 0, losses: 0, draws: 0 },
+        { name: "CT4", wins: 0, losses: 0, draws: 0 },
+        { name: "CT5", wins: 0, losses: 0, draws: 0 },
+        { name: "CT6", wins: 0, losses: 0, draws: 0 },
+        { name: "CT7", wins: 0, losses: 0, draws: 0 },
+        { name: "CT8", wins: 0, losses: 0, draws: 0 },
+        { name: "CT9", wins: 0, losses: 0, draws: 0 },
+        { name: "CT10", wins: 0, losses: 0, draws: 0 },
+    ];
+
+    let players = JSON.parse(localStorage.getItem('players')) || defaultPlayers;
+
+    // Lấy ngày bắt đầu và kết thúc từ localStorage
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    startDateInput.value = localStorage.getItem('startDate') || '';
+    endDateInput.value = localStorage.getItem('endDate') || '';
+
+    // Lưu ngày bắt đầu và kết thúc vào localStorage
+    function saveDates() {
+        localStorage.setItem('startDate', startDateInput.value);
+        localStorage.setItem('endDate', endDateInput.value);
+    }
+
+    // Cập nhật bảng cầu thủ
+    function updateTable() {
+        const tbody = document.querySelector("#playerTable tbody");
+        tbody.innerHTML = "";
+        players.forEach((player, index) => {
+            const totalGames = player.wins + player.losses + player.draws;
+            const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(2) : 0;
+            const lossRate = totalGames > 0 ? ((player.losses / totalGames) * 100).toFixed(2) : 0;
+            const drawRate = totalGames > 0 ? ((player.draws / totalGames) * 100).toFixed(2) : 0;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${player.name}</td>
+                    <td>${player.wins}</td>
+                    <td>${player.losses}</td>
+                    <td>${player.draws}</td>
+                    <td class="win-rate">${winRate}%</td>
+                    <td class="loss-rate">${lossRate}%</td>
+                    <td class="draw-rate">${drawRate}%</td>
+                    <td>
+                        <button class="win" onclick="updateStats(${index}, 'win')">Thắng</button>
+                        <button class="loss" onclick="updateStats(${index}, 'loss')">Thua</button>
+                        <button class="draw" onclick="updateStats(${index}, 'draw')">Hòa</button>
+                        <button class="edit" onclick="editPlayer(${index})">Sửa</button>
+                        <button class="delete" onclick="deletePlayer(${index})">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function updateStats(index, result) {
+        if (result === 'win') {
+            players[index].wins++;
+        } else if (result === 'loss') {
+            players[index].losses++;
+        } else if (result === 'draw') {
+            players[index].draws++;
+        }
+        saveData();
+        updateTable();
+    }
+
+    function resetData() {
+        players.forEach(player => {
+            player.wins = 0;
+            player.losses = 0;
+            player.draws = 0;
+        });
+        saveData();
+        updateTable();
+	}
+
+    function addPlayer() {
+        if (players.length < 15) {
+            const newPlayerName = prompt("Nhập tên cầu thủ mới:");
+            if (newPlayerName) {
+                players.push({ name: newPlayerName, wins: 0, losses: 0, draws: 0 });
+                saveData();
+                updateTable();
+            }
+        } else {
+            alert("Đã đạt giới hạn 15 cầu thủ.");
+        }
+    }
+
+    function editPlayer(index) {
+        const newName = prompt("Nhập tên cầu thủ mới:", players[index].name);
+        if (newName) {
+            players[index].name = newName;
+            saveData();
+            updateTable();
+        }
+    }
+
+    function deletePlayer(index) {
+        if (confirm("Bạn có chắc chắn muốn xóa cầu thủ này không?")) {
+            players.splice(index, 1); // Xóa cầu thủ tại chỉ số index
+            saveData();
+            updateTable();
+        }
+    }
+
+    function saveData() {
+        localStorage.setItem('players', JSON.stringify(players));
+        saveDates(); // Lưu ngày tháng khi lưu dữ liệu cầu thủ
+    }
+
+    // Khởi động bảng khi trang được tải
+    document.addEventListener("DOMContentLoaded", () => {
+        updateTable();
+        startDateInput.addEventListener('change', saveDates); // Lưu ngày bắt đầu khi thay đổi
+        endDateInput.addEventListener('change', saveDates); // Lưu ngày kết thúc khi thay đổi
+    });
+</script>
+
+</body>
+</html>
