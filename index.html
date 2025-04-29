@@ -4,21 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thống kê FC Thập Cẩm</title>
+	<title>Xuất Ảnh Bảng</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9; /* Màu nền sáng */
+            background-color: #f9f9f9;
             margin: 0;
             padding: 20px;
         }
         h1 {
             text-align: center;
-            color: #333; /* Màu chữ tối */
+            color: #333;
         }
         p {
-            text-align: center; /* Căn giữa cho thông tin thời gian */
-            color: #555; /* Màu chữ nhẹ hơn */
-            margin: 10px 0; /* Khoảng cách trên và dưới */
+            text-align: center;
+            color: #555;
+            margin: 10px 0;
         }
         table {
             width: 100%;
@@ -27,16 +29,16 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            border: 1px solid #ccc; /* Màu viền nhẹ */
+            border: 1px solid #ccc;
             padding: 10px;
             text-align: center;
         }
         th {
-            background-color: #4CAF50; /* Màu xanh lá cây cho tiêu đề */
+            background-color: #4CAF50;
             color: white;
         }
         tr:nth-child(even) {
-            background-color: #f2f2f2; /* Màu nền cho hàng chẵn */
+            background-color: #f2f2f2;
         }
         button {
             color: white;
@@ -48,54 +50,92 @@
             transition: background-color 0.3s;
         }
         .win {
-            background-color: #4CAF50; /* Màu xanh lá cây cho thắng */
+            background-color: #4CAF50;
         }
         .loss {
-            background-color: #f44336; /* Màu đỏ cho thua */
+            background-color: #f44336;
         }
         .draw {
-            background-color: #ffeb3b; /* Màu vàng cho hòa */
-            color: black; /* Chữ màu đen cho dễ đọc */
+            background-color: #ffeb3b;
+            color: black;
         }
         .reset {
-            background-color: #2196F3; /* Màu xanh dương cho reset */
+            background-color: #2196F3;
             color: white;
         }
         .add {
-            background-color: #ff9800; /* Màu cam cho thêm cầu thủ */
+            background-color: #ff9800;
             color: white;
         }
         .edit {
-            background-color: #673AB7; /* Màu tím cho sửa tên cầu thủ */
+            background-color: #673AB7;
             color: white;
         }
         .delete {
-            background-color: #f44336; /* Màu đỏ cho xóa cầu thủ */
+            background-color: #f44336;
             color: white;
         }
         button:hover {
-            opacity: 0.9; /* Hiệu ứng mờ khi hover */
+            opacity: 0.9;
         }
         td:first-child {
-            text-align: left; /* Căn trái cho tên cầu thủ */
+            text-align: left;
         }
         .win-rate {
-            background-color: #c8e6c9; /* Màu xanh lá cây nhạt cho tỷ lệ thắng */
+            background-color: #c8e6c9;
             color: black;
         }
         .loss-rate {
-            background-color: #ffcdd2; /* Màu đỏ nhạt cho tỷ lệ thua */
+            background-color: #ffcdd2;
             color: black;
         }
         .draw-rate {
-            background-color: #fff9c4; /* Màu vàng nhạt cho tỷ lệ hòa */
+            background-color: #fff9c4;
             color: black;
         }
         .button-container {
             display: flex;
-            justify-content: space-between; /* Căn chỉnh các nút ở hai bên */
-            margin-top: 20px; /* Khoảng cách trên cho các nút */
+            justify-content: space-between;
+            margin-top: 20px;
         }
+	.mvp {
+		background-color: #FFD700;
+		font-weight: bold;
+		color: #000;
+	}
+
+	.silver {
+		/* background-color: #C0C0C0; /* Màu bạc cho Top 2 */
+		font-weight: bold;
+		color: #000;
+	}
+
+	.bronze {
+		/* background-color: #CD7F32; /* Màu đồng cho Top 3 */
+		font-weight: bold;
+		color: #000;
+	}
+	.reset {
+		background-color: #2196F3;
+		color: white;
+	}
+    .export {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+	 .export:hover {
+        background-color: #45a049;
+    }
     </style>
 </head>
 <body>
@@ -121,9 +161,18 @@
     </tbody>
 </table>
 
+
+
+
+
+
+
 <div class="button-container">
+
     <button class="add" onclick="addPlayer()">Thêm Cầu Thủ</button>
+	<button class="export" onclick="exportImage()">Xuất Ảnh</button>
     <button class="reset" onclick="resetData()">Reset</button>
+	
 </div>
 
 <script>
@@ -138,6 +187,7 @@
         { name: "CT8", wins: 0, losses: 0, draws: 0 },
         { name: "CT9", wins: 0, losses: 0, draws: 0 },
         { name: "CT10", wins: 0, losses: 0, draws: 0 },
+		// Thay đổi tên cầu thủ trong mã nguồn: F12 - Console (bảng điều khiển) - Nhập lệnh: localStorage.removeItem('players'); - Enter
     ];
 
     let players = JSON.parse(localStorage.getItem('players')) || defaultPlayers;
@@ -156,36 +206,75 @@
     }
 
     // Cập nhật bảng cầu thủ
-    function updateTable() {
-        const tbody = document.querySelector("#playerTable tbody");
-        tbody.innerHTML = "";
-        players.forEach((player, index) => {
-            const totalGames = player.wins + player.losses + player.draws;
-            const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(2) : 0;
-            const lossRate = totalGames > 0 ? ((player.losses / totalGames) * 100).toFixed(2) : 0;
-            const drawRate = totalGames > 0 ? ((player.draws / totalGames) * 100).toFixed(2) : 0;
+	function updateTable() {
+		const tbody = document.querySelector("#playerTable tbody");
+		tbody.innerHTML = "";
 
-            tbody.innerHTML += `
-                <tr>
-                    <td>${player.name}</td>
-                    <td>${player.wins}</td>
-                    <td>${player.losses}</td>
-                    <td>${player.draws}</td>
-                    <td class="win-rate">${winRate}%</td>
-                    <td class="loss-rate">${lossRate}%</td>
-                    <td class="draw-rate">${drawRate}%</td>
-                    <td>
-                        <button class="win" onclick="updateStats(${index}, 'win')">Thắng</button>
-                        <button class="loss" onclick="updateStats(${index}, 'loss')">Thua</button>
-                        <button class="draw" onclick="updateStats(${index}, 'draw')">Hòa</button>
-                        <button class="edit" onclick="editPlayer(${index})">Sửa</button>
-                        <button class="delete" onclick="deletePlayer(${index})">Xóa</button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
+    // Sắp xếp cầu thủ theo tỷ lệ thắng
+    players.sort((a, b) => {
+        const totalGamesA = a.wins + a.losses + a.draws;
+        const totalGamesB = b.wins + b.losses + b.draws;
+        const winRateA = totalGamesA > 0 ? (a.wins / totalGamesA) : 0;
+        const winRateB = totalGamesB > 0 ? (b.wins / totalGamesB) : 0;
+        return winRateB - winRateA; // Sắp xếp từ cao đến thấp
+    });
 
+    // Lấy cầu thủ có tỷ lệ thắng cao nhất
+		const topPlayer = players[0];
+		const secondPlayer = players[1];
+		const thirdPlayer = players[2];
+
+    players.forEach((player, index) => {
+        const totalGames = player.wins + player.losses + player.draws;
+        const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(2) : 0;
+        const lossRate = totalGames > 0 ? ((player.losses / totalGames) * 100).toFixed(2) : 0;
+        const drawRate = totalGames > 0 ? ((player.draws / totalGames) * 100).toFixed(2) : 0;
+
+        // Thêm lớp CSS cho cầu thủ MVP, Top 2 và Top 3
+        let playerClass = '';
+        let playerIcons = '';
+        
+        if (player === topPlayer) {
+            playerClass = 'mvp'; // MVP
+            playerIcons = '🏆'; // Biểu tượng cúp cho MVP
+        } else if (player === secondPlayer) {
+            playerClass = 'silver'; // Top 2
+            playerIcons = '🥈'; // Biểu tượng cúp bạc cho Top 2
+        } else if (player === thirdPlayer) {
+            playerClass = 'bronze'; // Top 3
+            playerIcons = '🥉'; // Biểu tượng cúp đồng cho Top 3
+        }
+
+        tbody.innerHTML += `
+            <tr class="${playerClass}">
+                <td>${playerIcons} ${player.name}</td>
+                <td>${player.wins}</td>
+                <td>${player.losses}</td>
+                <td>${player.draws}</td>
+                <td class="win-rate">${winRate}%</td>
+                <td class="loss-rate">${lossRate}%</td>
+                <td class="draw-rate">${drawRate}%</td>
+                <td>
+                    <button class="win" onclick="updateStats(${index}, 'win')">Thắng</button>
+                    <button class="loss" onclick="updateStats(${index}, 'loss')">Thua</button>
+                    <button class="draw" onclick="updateStats(${index}, 'draw')">Hòa</button>
+                    <button class="edit" onclick="editPlayer(${index})">Sửa</button>
+                    <button class="delete" onclick="deletePlayer(${index})">Xóa</button>
+                    <button class="reset" onclick="resetPlayerStats(${index})">Reset</button> <!-- Nút Reset -->
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// Hàm để đặt lại số lần thắng, thua, hòa của cầu thủ
+	function resetPlayerStats(index) {
+		players[index].wins = 0;
+		players[index].losses = 0;
+		players[index].draws = 0;
+		saveData();
+		updateTable();
+	}
     function updateStats(index, result) {
         if (result === 'win') {
             players[index].wins++;
@@ -221,14 +310,24 @@
         }
     }
 
-    function editPlayer(index) {
-        const newName = prompt("Nhập tên cầu thủ mới:", players[index].name);
-        if (newName) {
-            players[index].name = newName;
-            saveData();
-            updateTable();
-        }
-    }
+	function editPlayer(index) {
+		const player = players[index];
+		const newName = prompt("Nhập tên cầu thủ mới:", player.name);
+		if (newName) {
+			player.name = newName;
+		}
+
+		const newStats = prompt(`Nhập số liệu mới cho ${player.name} (Thắng, Thua, Hòa)`, `${player.wins}, ${player.losses}, ${player.draws}`);
+		if (newStats) {
+			const statsArray = newStats.split(',').map(stat => parseInt(stat.trim()) || 0);
+			player.wins = statsArray[0];
+			player.losses = statsArray[1];
+			player.draws = statsArray[2];
+		}
+
+		saveData();
+		updateTable();
+	}
 
     function deletePlayer(index) {
         if (confirm("Bạn có chắc chắn muốn xóa cầu thủ này không?")) {
@@ -249,6 +348,32 @@
         startDateInput.addEventListener('change', saveDates); // Lưu ngày bắt đầu khi thay đổi
         endDateInput.addEventListener('change', saveDates); // Lưu ngày kết thúc khi thay đổi
     });
+	function exportImage() {
+		const table = document.getElementById('playerTable');
+
+    // Ẩn cột "Thao Tác"
+		const thaoTacIndex = 4; // Chỉ số cột "Thao Tác"
+		for (let row of table.rows) {
+			row.cells[thaoTacIndex].style.display = 'none';
+		}
+
+    // Chụp ảnh bảng với chất lượng cao
+    html2canvas(table, { scale: 4 }).then(canvas => { // Tăng scale lên 4
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png'); // Sử dụng định dạng PNG
+        link.download = 'thong_ke_cau_thu.png'; // Đổi tên file thành PNG
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }).catch(error => {
+        console.error('Error exporting image:', error);
+    });
+
+    // Hiện lại cột "Thao Tác" sau khi xuất ảnh
+    for (let row of table.rows) {
+        row.cells[thaoTacIndex].style.display = '';
+    }
+}
 </script>
 
 </body>
